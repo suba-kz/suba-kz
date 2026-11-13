@@ -1,0 +1,75 @@
+import os
+from telegram import Update, ReplyKeyboardMarkup
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    ContextTypes,
+    filters
+)
+
+# /start komandasi
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        ["👋 Salom", "ℹ️ Yordam"],
+        ["❤️ Men haqimda"]
+    ]
+
+    reply_markup = ReplyKeyboardMarkup(
+        keyboard,
+        resize_keyboard=True
+    )
+
+    await update.message.reply_text(
+        "Assalomu alaykum! 🤖\n"
+        "Mening Telegram botimga xush kelibsiz!",
+        reply_markup=reply_markup
+    )
+
+# /help komandasi
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "Botdan foydalanish uchun menyudagi tugmalardan birini bosing."
+    )
+
+# Xabarlarga javob berish
+async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text
+
+    if text == "👋 Salom":
+        await update.message.reply_text("Salom! 😊 Qalaysiz?")
+
+    elif text == "ℹ️ Yordam":
+        await update.message.reply_text("Men sizga yordam berishga tayyorman!")
+
+    elif text == "❤️ Men haqimda":
+        await update.message.reply_text(
+            "Men Python tilida yaratilgan Telegram botman! 🐍"
+        )
+
+    else:
+        await update.message.reply_text(
+            f"Siz yozdingiz: {text}"
+        )
+
+# Botni ishga tushirish
+def main():
+    token = os.getenv("BOT_TOKEN")
+
+    if not token:
+        raise ValueError("BOT_TOKEN topilmadi!")
+
+    app = Application.builder().token(token).build()
+
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(
+        MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler)
+    )
+
+    print("Bot ishga tushdi!")
+
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
